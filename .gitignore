@@ -1,0 +1,5 @@
+output.*
+.snakemake
+databases
+*manual*
+uploads
