@@ -4,19 +4,17 @@ import glob
 
 configfile: "inputs/pacbio_reads.conf"
 
-out_dir = config.get('output_dir', 'output.gather_pacbio_reads')
+out_dir = config.get('output_dir', 'output.gather_illumina_reads')
 logs_dir = os.path.join(out_dir, "logs")
 benchmarks_dir = os.path.join(out_dir, "benchmarks")
 
-basename = config.get("basename", 'np-pacbio-reads')
-
+basename = config.get("basename", 'np-illumina-reads')
 
 sample_info = pd.read_csv(config['sample_info'])
 SAMPLES = sample_info["name"].to_list()
-# hacky, but useful: drop k-mer trimmed read name into sample_info dict for easier finding
+# hacky, but useful: drop trimmed read names into sample_info dict for easier finding
+sample_info['trim'] = f'{out_dir}/trim/' + sample_info['name'] + '.trim.fq.gz'
 sample_info['abundtrim'] = f'{out_dir}/abundtrim/' + sample_info['name'] + '.abundtrim.fq.gz'
-# rename reads --> raw_reads for clarity
-sample_info.rename(columns={'reads': 'raw_reads'}, inplace=True)
 # set name as index for easy access
 sample_info.set_index('name', inplace=True)
 
@@ -55,15 +53,36 @@ onerror:
 
 rule all:
     input:
-        ancient(expand(os.path.join(out_dir, f"{basename}.{{read_type}}.queries.zip"), read_type=['raw_reads', 'abundtrim'])),
+        ancient(expand(os.path.join(out_dir, f"{basename}.{{read_type}}.queries.zip"), read_type=['trim', 'abundtrim'])),
         expand(os.path.join(out_dir, '{gather_type}', f"{basename}.{{aks}}.gather-pathlist.txt"), aks=alpha_ksize_scaled, gather_type=['abundtrim-gather', 'abund-gather'])
+
+
+rule fastp_trim:
+    input: 
+        r1 = lambda w: sample_info.at[w.sample, "read1"],
+        r2 = lambda w: sample_info.at[w.sample, "read2"],
+    output:
+        protected(os.path.join(out_dir, "abundtrim", "{sample}.trim.fq.gz"))
+    conda: 'conf/env/trim.yml'
+    resources:
+        mem_mb=6000,
+        time=600,
+        partition = 'med2',
+    threads: 4
+    shell: 
+        """
+        fastp --in1 {input.r1} --in2 {input.r2} \
+             --detect_adapter_for_pe  --qualified_quality_phred 4 \
+             --length_required 25 --correction --thread {threads} \
+             --json {output.json} --html {output.html} \
+             --low_complexity_filter --stdout | gzip -9 > {output.interleaved}
+        """
 
 
 # k-mer abundance trimming
 rule kmer_trim_reads:
     input: 
-        #reads = ancient(outdir + '/trim/{sample}.trim.fq.gz'),
-        reads = lambda w: sample_info.at[w.sample, "raw_reads"]
+        reads = ancient(os.path.join(out_dir, 'trim','{sample}.trim.fq.gz')),
     output:
         protected(os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz"))
     conda: 'conf/env/trim.yml'
@@ -81,7 +100,7 @@ rule kmer_trim_reads:
 rule sourmash_sketch_translate:
     #input: os.path.join(out_dir, "{read_type}", "{sample}.abundtrim.fq.gz")
    # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
-    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'reads' or 'abundtrim'
+    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'trim' or 'abundtrim'
     output:
         os.path.join(out_dir, "{read_type}", "{sample}.translate.sig.zip")
     threads: 1
@@ -102,7 +121,7 @@ rule sourmash_sketch_translate:
 rule sourmash_sketch_dna:
     #input: os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz")
    # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
-    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'raw_reads' or 'abundtrim'
+    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'trim' or 'abundtrim'
     output:
         os.path.join(out_dir, "{read_type}", "{sample}.dna.sig.zip")
     threads: 1
