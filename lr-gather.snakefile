@@ -49,8 +49,8 @@ onerror:
 
 rule all:
     input:
-        ancient(os.path.join(out_dir, "sigs", f"{basename}.queries.zip")),
-        #expand(os.path.join(out_dir, 'gather', f"{basename}.{{aks}}.gather-pathlist.txt"), aks=alpha_ksize_scaled)
+        ancient(os.path.join(out_dir, f"{basename}.queries.zip")),
+        expand(os.path.join(out_dir, 'gather', f"{basename}.{{aks}}.gather-pathlist.txt"), aks=alpha_ksize_scaled)
 
 
 # k-mer abundance trimming
@@ -63,7 +63,7 @@ rule kmer_trim_reads:
     conda: 'conf/env/trim.yml'
     resources:
         mem_mb = int(20e9/ 1e6),
-        partition = 'bml',
+        partition = 'bmm',
         time=240,
     params:
         mem = 20e9,
@@ -73,18 +73,18 @@ rule kmer_trim_reads:
     """
 
 
-rule sourmash_sketch:
+rule sourmash_sketch_translate:
     input: os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz")
    # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
     output:
-        os.path.join(out_dir, "sigs", "{sample}.sig.gz")
+        os.path.join(out_dir, "sigs.translate", "{sample}.sig.gz")
     threads: 1
     resources:
         mem_mb=lambda wildcards, attempt: attempt *3000,
         partition = "low2",
         time=240,
-    log: os.path.join(logs_dir, "sketch", "{sample}.sketch.log")
-    benchmark: os.path.join(benchmarks_dir, "sketch", "{sample}.sketch.benchmark")
+    log: os.path.join(logs_dir, "sketch_translate", "{sample}.sketch.log")
+    benchmark: os.path.join(benchmarks_dir, "sketch_translate", "{sample}.sketch.benchmark")
     conda: "conf/env/sourmash.yml"
     shell:
         """
@@ -93,11 +93,32 @@ rule sourmash_sketch:
                                           --name {wildcards.sample} -o {output} 2> {log}
         """
 
+rule sourmash_sketch_dna:
+    input: os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz")
+   # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
+    output:
+        os.path.join(out_dir, "sigs.dna", "{sample}.sig.gz")
+    threads: 1
+    resources:
+        mem_mb=lambda wildcards, attempt: attempt *3000,
+        partition = "low2",
+        time=240,
+    log: os.path.join(logs_dir, "sketch_dna", "{sample}.sketch.log")
+    benchmark: os.path.join(benchmarks_dir, "sketch_dna", "{sample}.sketch.benchmark")
+    conda: "conf/env/sourmash.yml"
+    shell:
+        """
+        sourmash sketch dna {input} -p k=21,k=31,k=51,dna,abund,scaled=1000 \
+                                    --name {wildcards.sample} -o {output} 2> {log}
+        """
+
 localrules: sig_cat
 rule sig_cat:
-    input: expand(os.path.join(out_dir, "sigs", "{sample}.sig.gz"), sample=SAMPLES)
+    input: 
+        expand(os.path.join(out_dir, "sigs.translate", "{sample}.sig.gz"), sample=SAMPLES),
+        expand(os.path.join(out_dir, "sigs.dna", "{sample}.sig.gz"), sample=SAMPLES)
     output:
-        zipF=os.path.join(out_dir, "sigs", f"{basename}.queries.zip"),
+        zipF=os.path.join(out_dir, f"{basename}.queries.zip"),
     resources:
         mem_mb=lambda wildcards, attempt: attempt *3000,
         partition = "low2",
@@ -112,7 +133,7 @@ rule sig_cat:
 
 rule gather_sig_from_zipfile:
     input:
-        query_zip=ancient(os.path.join(out_dir, "sigs", f"{basename}.queries.zip")),
+        query_zip=ancient(os.path.join(out_dir, f"{basename}.queries.zip")),
         databases = lambda w: search_databases[f"{w.alphabet}-k{w.ksize}"]
     output:
         prefetch_csv=os.path.join(out_dir, 'gather', '{sample}.{alphabet}-k{ksize}-sc{scaled}.prefetch.csv'),
@@ -132,12 +153,12 @@ rule gather_sig_from_zipfile:
     shell:
         # touch output to let workflow continue in cases where 0 results are found
         """
-        echo "DB is {input.database}"
-        echo "DB is {input.database}" > {log}
+        echo "DB is {input.databases}"
+        echo "DB is {input.databases}" > {log}
 
-        sourmash sig grep {wildcards.sample} {input.query_zip} {alpha_cmd} \
+        sourmash sig grep {wildcards.sample} {input.query_zip} {params.alpha_cmd} \
                  --ksize {wildcards.ksize} | sourmash gather - {input.databases} \
-                 -o {output.gather_csv} -k {wildcards.ksize} --scaled {wildcards.scaled} {alpha_cmd} \
+                 -o {output.gather_csv} -k {wildcards.ksize} --scaled {wildcards.scaled} {params.alpha_cmd} \
                  --save-prefetch-csv {output.prefetch_csv} > {output.gather_txt} 2> {log}
         touch {output.prefetch_csv}
         touch {output.gather_txt}
@@ -157,10 +178,12 @@ rule tax_annotate:
         mem_mb=lambda wildcards, attempt: attempt *3000,
         partition = "low2",
         time=240,
+    params:
+        lineage_cmd = "-t" + "-t".join(config['database_lineage_files'])
     conda: "conf/env/sourmash.yml"
     shell:
         """
-        sourmash tax annotate -g {input.gather} -t {' -t'.join(input.lineages)}
+        sourmash tax annotate -g {input.gather} {params.lineage_cmd}
         """
 
 
