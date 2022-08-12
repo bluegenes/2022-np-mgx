@@ -152,7 +152,7 @@ rule gather_abundtrim_sig_from_zipfile:
     resources:
         mem_mb=lambda wildcards, attempt: attempt *30000,
         time=4000,
-        partition="med2",
+        partition="bmm",
     log: os.path.join(logs_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.log")
     benchmark: os.path.join(benchmarks_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.benchmark")
     conda: "conf/env/sourmash.yml"
@@ -188,7 +188,7 @@ rule gather_raw_read_sig_using_abundtrim_prefetch:
     resources:
         mem_mb=lambda wildcards, attempt: attempt *30000,
         time=4000,
-        partition="med2",
+        partition="bmm",
     log: os.path.join(logs_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.log")
     benchmark: os.path.join(benchmarks_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.benchmark")
     conda: "conf/env/sourmash.yml"

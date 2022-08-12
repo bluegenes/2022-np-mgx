@@ -1,0 +1,7 @@
+name,read1,read2
+ri1903c117_50m-1,inputs/illumina_reads/1903c117_50m-1_bmtag_1.fastq.gz,inputs/illumina_reads/1903c117_50m-1_bmtag_2.fastq.gz
+ri1903c118_23m-2,inputs/illumina_reads/1903c118_23m-2_bmtag_1.fastq.gz,inputs/illumina_reads/1903c118_23m-2_bmtag_2.fastq.gz
+ri1903c123_10m-2,inputs/illumina_reads/1903c123_10m-2_bmtag_1.fastq.gz,inputs/illumina_reads/1903c123_10m-2_bmtag_2.fastq.gz
+ri1903c127_7m-2,inputs/illumina_reads/1903c127_7m-2_NOAA1163b_S146_L003_bmtag_1.fastq.gz,inputs/illumina_reads/1903c127_7m-2_NOAA1163b_S146_L003_bmtag_2.fastq.gz
+ri1903c144_13m-2,inputs/illumina_reads/1903c144_13m-2_NOAA1163b_S163_L003_bmtag_1.fastq.gz,inputs/illumina_reads/1903c144_13m-2_NOAA1163b_S163_L003_bmtag_2.fastq.gz
+riLas19c107_10m-2,inputs/illumina_reads/Las19c107_10m-2_bmtag_1.fastq.gz,inputs/illumina_reads/Las19c107_10m-2_bmtag_2.fastq.gz

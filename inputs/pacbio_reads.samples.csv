@@ -1,0 +1,15 @@
+name,reads
+r1903c117_50m-3,inputs/pacbio_reads/1903c117_50m-3_m64247_210708_001818.ccs_7g01.fastq.gz
+r1903c118_23m-3,inputs/pacbio_reads/1903c118_23m-3_m64247_210702_184901.ccs.demux.bc1011.fastq.gz
+r1903c119_11m-3,inputs/pacbio_reads/1903c119_11m-3_m64247_210706_180633.ccs_6f01.fastq.gz
+r1903c122_28m-3,inputs/pacbio_reads/1903c122_28m-3_m64247_210701_075135.ccs.demux.bc1018.fastq.gz
+r1903c124_15m-3,inputs/pacbio_reads/1903c124_15m-3_m64247_210702_184901.ccs.demux.bc1022.fastq.gz
+r1903c126_45m-3,inputs/pacbio_reads/1903c126_45m-3_m64247_210704_054527.ccs_4d01.fastq.gz
+r1903c127_7m-3,inputs/pacbio_reads/1903c127_7m-3_m64247_210701_075135.ccs.demux.bc1019.fastq.gz
+r1903c129_26m-3,inputs/pacbio_reads/1903c129_26m-3_m64247_210705_115454.ccs_5e01.fastq.gz
+rLas19c107_10m-3,inputs/pacbio_reads/Las19c107_10m-3_m64247_210702_184901.ccs.demux.bc1020.fastq.gz
+rLas19c138_27m-3,inputs/pacbio_reads/Las19c138_27m-3_m64247_210701_075135.ccs.demux.bc1016.fastq.gz
+r1903c111_10m-3_cd,inputs/pacbio_reads/Comamonas_decontaminated/1903c111_10m-3_ComamonasFilt_GenBankDecontam.fq.gz
+r1903c123_10m-3_cd,inputs/pacbio_reads/Comamonas_decontaminated/1903c123_10m-3_ComamonasFilt_GenBankDecontam.fq.gz
+r1903c144_13m-3_cd,inputs/pacbio_reads/Comamonas_decontaminated/1903c144_13m-3_ComamonasFilt_GenBankDecontam.fq.gz
+rLas19c135_5m-3_cd,inputs/pacbio_reads/Comamonas_decontaminated/Las19c135_5m-3_ComamonasFilt_GenBankDecontam.fq.gz

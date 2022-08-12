@@ -2,7 +2,7 @@ import os, sys
 import pandas as pd
 import glob
 
-configfile: "inputs/pacbio_reads.conf"
+configfile: "inputs/illumina_reads.conf"
 
 out_dir = config.get('output_dir', 'output.gather_illumina_reads')
 logs_dir = os.path.join(out_dir, "logs")
@@ -62,12 +62,14 @@ rule fastp_trim:
         r1 = lambda w: sample_info.at[w.sample, "read1"],
         r2 = lambda w: sample_info.at[w.sample, "read2"],
     output:
-        protected(os.path.join(out_dir, "abundtrim", "{sample}.trim.fq.gz"))
+        interleaved=protected(os.path.join(out_dir, "trim", "{sample}.trim.fq.gz")),
+        json=os.path.join(out_dir, "trim", "{sample}.trim.json"),
+        html=os.path.join(out_dir, "trim", "{sample}.trim.html"),
     conda: 'conf/env/trim.yml'
     resources:
         mem_mb=6000,
-        time=600,
-        partition = 'med2',
+        time=240,
+        partition = 'low2',
     threads: 4
     shell: 
         """
@@ -88,7 +90,7 @@ rule kmer_trim_reads:
     conda: 'conf/env/trim.yml'
     resources:
         mem_mb = int(20e9/ 1e6),
-        partition = 'bmm',
+        partition = 'bml',
         time=240,
     params:
         mem = 20e9,
@@ -193,9 +195,9 @@ rule gather_abundtrim_sig_from_zipfile:
                  #--picklist {input.query_picklist}:name:identprefix:exclude \
 
 
-rule gather_raw_read_sig_using_abundtrim_prefetch:
+rule gather_trim_read_sig_using_abundtrim_prefetch:
     input:
-        query_zip=ancient(os.path.join(out_dir, f"{basename}.raw_reads.queries.zip")),
+        query_zip=ancient(os.path.join(out_dir, f"{basename}.trim.queries.zip")),
         prefetch_csv=os.path.join(out_dir, 'abundtrim-gather', '{sample}.{alphabet}-k{ksize}-sc{scaled}.prefetch.csv'),
         databases = lambda w: search_databases[f"{w.alphabet}-k{w.ksize}"]
     output:
