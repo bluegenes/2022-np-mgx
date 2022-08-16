@@ -240,13 +240,14 @@ rule tax_annotate:
         partition = "low2",
         time=240,
     params:
-        lineage_cmd = "-t" + "-t".join(config['database_lineage_files'])
+        outd= lambda w: os.path.join(out_dir, f'{w.gather_type}'),
+        lingather= lambda w: os.path.join(out_dir, f'{w.gather_type}', f'{w.sample}.{w.alphabet}-k{w.ksize}-sc{w.scaled}.gather.with-lineages.csv'),
     conda: "conf/env/sourmash.yml"
     shell:
         """
-        sourmash tax annotate -g {input.gather} {params.lineage_cmd}
+        mkdir -p {params.outd}
+        sourmash tax annotate -g {input.gather} -t {input.lineages} -o {params.outd}
         """
-
 
 localrules: annotated_gather_csvs_to_pathlist
 rule annotated_gather_csvs_to_pathlist:
