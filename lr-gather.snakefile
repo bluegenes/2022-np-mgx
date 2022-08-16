@@ -63,7 +63,7 @@ rule all:
 rule kmer_trim_reads:
     input: 
         #reads = ancient(outdir + '/trim/{sample}.trim.fq.gz'),
-        reads = lambda w: sample_info.at[w.sample, "raw_reads"]
+        reads = ancient(lambda w: sample_info.at[w.sample, "raw_reads"])
     output:
         protected(os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz"))
     conda: 'conf/env/trim.yml'
@@ -81,7 +81,7 @@ rule kmer_trim_reads:
 rule sourmash_sketch_translate:
     #input: os.path.join(out_dir, "{read_type}", "{sample}.abundtrim.fq.gz")
    # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
-    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'reads' or 'abundtrim'
+    input: ancient(lambda w: sample_info.at[w.sample, w.read_type]) # get raw reads or abundtrim reads. read_type = 'reads' or 'abundtrim'
     output:
         os.path.join(out_dir, "{read_type}", "{sample}.translate.sig.zip")
     threads: 1
@@ -102,7 +102,7 @@ rule sourmash_sketch_translate:
 rule sourmash_sketch_dna:
     #input: os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz")
    # input: lambda w: sample_info.at[w.sample, "reads"] # non-abundtrimmed sample
-    input: lambda w: sample_info.at[w.sample, w.read_type] # get raw reads or abundtrim reads. read_type = 'raw_reads' or 'abundtrim'
+    input: ancient(lambda w: sample_info.at[w.sample, w.read_type]) # get raw reads or abundtrim reads. read_type = 'raw_reads' or 'abundtrim'
     output:
         os.path.join(out_dir, "{read_type}", "{sample}.dna.sig.zip")
     threads: 1
@@ -122,7 +122,7 @@ rule sourmash_sketch_dna:
 localrules: sig_cat
 rule sig_cat:
     input: 
-        expand(os.path.join(out_dir, "{{read_type}}", "{sample}.{sketch_type}.sig.zip"), sample=SAMPLES, sketch_type = ['translate', 'dna']),
+        ancient(expand(os.path.join(out_dir, "{{read_type}}", "{sample}.{sketch_type}.sig.zip"), sample=SAMPLES, sketch_type = ['translate', 'dna'])),
     output:
         zipF=os.path.join(out_dir, f"{basename}.{{read_type}}.queries.zip"),
     resources:
@@ -219,11 +219,13 @@ rule tax_annotate:
         partition = "low2",
         time=240,
     params:
-        lineage_cmd = "-t" + "-t".join(config['database_lineage_files'])
+        outd= lambda w: os.path.join(out_dir, f'{w.gather_type}'),
+        lingather= lambda w: os.path.join(out_dir, f'{w.gather_type}', f'{w.sample}.{w.alphabet}-k{w.ksize}-sc{w.scaled}.gather.with-lineages.csv'),
     conda: "conf/env/sourmash.yml"
     shell:
         """
-        sourmash tax annotate -g {input.gather} {params.lineage_cmd}
+        mkdir -p {params.outd}
+        sourmash tax annotate -g {input.gather} -t {input.lineages} -o {params.outd}
         """
 
 
