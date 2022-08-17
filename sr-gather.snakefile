@@ -54,7 +54,8 @@ onerror:
 rule all:
     input:
         ancient(expand(os.path.join(out_dir, f"{basename}.{{read_type}}.queries.zip"), read_type=['trim', 'abundtrim'])),
-        expand(os.path.join(out_dir, '{gather_type}', f"{basename}.{{aks}}.gather-pathlist.txt"), aks=alpha_ksize_scaled, gather_type=['abundtrim-gather', 'abund-gather'])
+        expand(os.path.join(out_dir, '{gather_type}', f"{basename}.{{aks}}.gather-pathlist.txt"), aks=alpha_ksize_scaled, gather_type=['abundtrim-gather', 'abund-gather']),
+        expand(os.path.join(out_dir, '{gather_type}', '{sample}.{aks}.gather.krona.tsv'), sample=SAMPLES, aks=alpha_ksize_scaled, gather_type=['abundtrim-gather', 'abund-gather']),
 
 
 rule fastp_trim:
@@ -173,7 +174,7 @@ rule gather_abundtrim_sig_from_zipfile:
     resources:
         mem_mb=lambda wildcards, attempt: attempt *30000,
         time=4000,
-        partition="med2",
+        partition="bmm",
     log: os.path.join(logs_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.log")
     benchmark: os.path.join(benchmarks_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.benchmark")
     conda: "conf/env/sourmash.yml"
@@ -209,7 +210,7 @@ rule gather_trim_read_sig_using_abundtrim_prefetch:
     resources:
         mem_mb=lambda wildcards, attempt: attempt *30000,
         time=4000,
-        partition="med2",
+        partition="bmm",
     log: os.path.join(logs_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.log")
     benchmark: os.path.join(benchmarks_dir, "abundtrim-gather", "{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.benchmark")
     conda: "conf/env/sourmash.yml"
@@ -247,6 +248,26 @@ rule tax_annotate:
         """
         mkdir -p {params.outd}
         sourmash tax annotate -g {input.gather} -t {input.lineages} -o {params.outd}
+        """
+
+rule tax_metagenome:
+    input:
+        gather = os.path.join(out_dir, '{gather_type}', '{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.csv'),
+        lineages = config['database_lineage_files'],
+    output:
+        os.path.join(out_dir, '{gather_type}', '{sample}.{alphabet}-k{ksize}-sc{scaled}.gather.krona.tsv'),
+    resources:
+        mem_mb=lambda wildcards, attempt: attempt *3000,
+        partition = "low2",
+        time=240,
+    params:
+        outd= lambda w: os.path.join(out_dir, f'{w.gather_type}'),
+        out_base= lambda w: f'{w.sample}.{w.alphabet}-k{w.ksize}-sc{w.scaled}.gather',
+    conda: "conf/env/sourmash.yml"
+    shell:
+        """
+        mkdir -p {params.outd}
+        sourmash tax metagenome -g {input.gather} -t {input.lineages} -o {params.out_base} --output-dir {params.outd} --output-format 'krona' --rank species
         """
 
 localrules: annotated_gather_csvs_to_pathlist
