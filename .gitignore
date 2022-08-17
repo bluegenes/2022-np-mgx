@@ -3,3 +3,7 @@ output.*
 databases
 *manual*
 uploads
+inputs/*
+*csv
+organized_results
+*zip

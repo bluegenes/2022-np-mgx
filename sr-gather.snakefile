@@ -299,11 +299,11 @@ rule tax_metagenome_lineage_summary:
         time=240,
     params:
         outd= lambda w: os.path.join(out_dir, f'{w.gather_type}'),
-        out_base= lambda w: f'{basename}.{{aks}}.gather',
+        out_base= lambda w: f'{basename}.{w.aks}.gather',
     conda: "conf/env/sourmash.yml"
     shell:
         """
         mkdir -p {params.outd}
-        sourmash tax metagenome -g {input.gather_pathlist} -t {input.lineages} \
+        sourmash tax metagenome --from-file {input.gather_pathlist} -t {input.lineages} \
               -o {params.out_base} --output-dir {params.outd} --output-format lineage_summary --rank species
         """
