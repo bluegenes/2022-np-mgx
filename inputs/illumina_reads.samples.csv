@@ -5,3 +5,17 @@ ri1903c123_10m-2,inputs/illumina_reads/1903c123_10m-2_bmtag_1.fastq.gz,inputs/il
 ri1903c127_7m-2,inputs/illumina_reads/1903c127_7m-2_NOAA1163b_S146_L003_bmtag_1.fastq.gz,inputs/illumina_reads/1903c127_7m-2_NOAA1163b_S146_L003_bmtag_2.fastq.gz
 ri1903c144_13m-2,inputs/illumina_reads/1903c144_13m-2_NOAA1163b_S163_L003_bmtag_1.fastq.gz,inputs/illumina_reads/1903c144_13m-2_NOAA1163b_S163_L003_bmtag_2.fastq.gz
 riLas19c107_10m-2,inputs/illumina_reads/Las19c107_10m-2_bmtag_1.fastq.gz,inputs/illumina_reads/Las19c107_10m-2_bmtag_2.fastq.gz
+ri1903c122_28m-1,uploads/second_set/1903c122_28m-1_NOAA1163b_S143_L003_bmtag_1.fastq.gz,uploads/second_set/1903c122_28m-1_NOAA1163b_S143_L003_bmtag_2.fastq.gz
+ri1903c124_15m-2,uploads/second_set/1903c124_15m-2_bmtag_1.fastq.gz,uploads/second_set/1903c124_15m-2_bmtag_2.fastq.gz
+ri1903c129_26m-2,uploads/second_set/1903c129_26m-2_bmtag_1.fastq.gz,uploads/second_set/1903c129_26m-2_bmtag_2.fastq.gz
+riLas19c135_5m-2,uploads/second_set/Las19c135_5m-2_NOAA1163b_S159_L003_bmtag_1.fastq.gz,uploads/second_set/Las19c135_5m-2_NOAA1163b_S159_L003_bmtag_2.fastq.gz
+riLas19c138_27m-1,uploads/second_set/Las19c138_27m-1_bmtag_1.fastq.gz,uploads/second_set/Las19c138_27m-1_bmtag_2.fastq.gz
+ri1903c111_10m-2,uploads/second_set/1903c111_10m-2_bmtag_1.fastq.gz,uploads/second_set/1903c111_10m-2_bmtag_2.fastq.gz
+ri1903c126_45m-2,uploads/second_set/1903c126_45m-2_bmtag_1.fastq.gz,uploads/second_set/1903c126_45m-2_bmtag_2.fastq.gz
+ri1903c111_10m-1,uploads/second_set/1903c111_10m-1_bmtag_1.fastq.gz,uploads/second_set/1903c111_10m-1_bmtag_2.fastq.gz
+ri1903c126_45m-1,uploads/second_set/1903c126_45m-1_bmtag_1.fastq.gz,uploads/second_set/1903c126_45m-1_bmtag_2.fastq.gz
+ri1903c124_15m-1,uploads/second_set/1903c124_15m-1_bmtag_1.fastq.gz,uploads/second_set/1903c124_15m-1_bmtag_2.fastq.gz
+riLas19c135_5m-1,uploads/second_set/Las19c135_5m-1_bmtag_1.fastq.gz,uploads/second_set/Las19c135_5m-1_bmtag_2.fastq.gz
+ri1903c119_11m-2,uploads/second_set/1903c119_11m-2_bmtag_1.fastq.gz,uploads/second_set/1903c119_11m-2_bmtag_2.fastq.gz
+ri1903c122_28m-2,uploads/second_set/1903c122_28m-2_bmtag_1.fastq.gz,uploads/second_set/1903c122_28m-2_bmtag_2.fastq.gz
+ri1903c129_26m-1,uploads/second_set/1903c129_26m-1_bmtag_1.fastq.gz,uploads/second_set/1903c129_26m-1_bmtag_2.fastq.gz
