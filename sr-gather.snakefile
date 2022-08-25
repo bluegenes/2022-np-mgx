@@ -68,10 +68,10 @@ rule fastp_trim:
         html=os.path.join(out_dir, "trim", "{sample}.trim.html"),
     conda: 'conf/env/trim.yml'
     resources:
-        mem_mb=6000,
-        time=240,
-        partition = 'low2',
-    threads: 4
+        mem_mb=6000, #40000,
+        time=240, #6000,
+        partition = 'low2', #'bmm',
+    threads: 4 #10
     shell: 
         """
         fastp --in1 {input.r1} --in2 {input.r2} \
@@ -90,11 +90,11 @@ rule kmer_trim_reads:
         protected(os.path.join(out_dir, "abundtrim", "{sample}.abundtrim.fq.gz"))
     conda: 'conf/env/trim.yml'
     resources:
-        mem_mb = int(20e9/ 1e6),
-        partition = 'bml',
-        time=240,
+        mem_mb = int(20e9/1e6),  #int(45e9/ 1e6),
+        partition = 'low2', #'bmm',
+        time=240, #6000,
     params:
-        mem = 20e9,
+        mem = 20e9, #45e9,
     shell: """
             trim-low-abund.py -C 3 -Z 18 -M {params.mem} -V \
             {input.reads} -o {output} --gzip
